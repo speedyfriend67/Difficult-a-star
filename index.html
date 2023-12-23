@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A* Pathfinding with Text Directions</title>
+  <title>A* Pathfinding with Text Directions and Obstacles</title>
   <style>
     body {
       display: flex;
@@ -38,6 +38,10 @@
     let start = getRandomPosition();
     let end = getRandomPosition();
 
+    // Define the number of obstacles and generate them randomly
+    const numObstacles = 30;
+    const obstacles = generateRandomObstacles(numObstacles);
+
     // Customizable colors
     const backgroundColor = '#eee';
     const wallColor = '#222';
@@ -60,6 +64,11 @@
           };
         }
       }
+
+      // Add obstacles to the grid
+      obstacles.forEach(obstacle => {
+        grid[obstacle.row][obstacle.col].wall = true;
+      });
     }
 
     // Draw the grid on the canvas
@@ -208,46 +217,54 @@
 
     function updateCell(event) {
       const mouseX = event.clientX - canvas.getBoundingClientRect().left;
-const mouseY = event.clientY - canvas.getBoundingClientRect().top;
+      const mouseY = event.clientY - canvas.getBoundingClientRect().top;
 
-  const col = Math.floor(mouseX / gridSize);
-  const row = Math.floor(mouseY / gridSize);
+      const col = Math.floor(mouseX / gridSize);
+      const row = Math.floor(mouseY / gridSize);
 
-  if (grid[row] && grid[row][col]) {
-    grid[row][col].wall = !grid[row][col].wall;
-    drawGrid();
-    drawPoints();
-    if (start.row !== end.row || start.col !== end.col) {
+      if (grid[row] && grid[row][col]) {
+        grid[row][col].wall = !grid[row][col].wall;
+        drawGrid();
+        drawPoints();
+        if (start.row !== end.row || start.col !== end.col) {
+          aStar();
+        }
+      }
+    }
+
+    // Generate a random position within the grid
+    function getRandomPosition() {
+      return {
+        row: Math.floor(Math.random() * rows),
+        col: Math.floor(Math.random() * cols),
+        cost: Infinity,
+        heuristic: 0,
+        visited: false,
+        wall: false,
+        neighbors: [],
+        previous: undefined,
+      };
+    }
+
+    // Generate an array of random obstacle positions
+    function generateRandomObstacles(count) {
+      const obstaclePositions = [];
+      for (let i = 0; i < count; i++) {
+        obstaclePositions.push(getRandomPosition());
+      }
+      return obstaclePositions;
+    }
+
+    // Initialize the grid, draw the points, and perform A* algorithm
+    function initialize() {
+      initializeGrid();
+      drawGrid();
+      drawPoints();
       aStar();
     }
-  }
-}
 
-// Generate a random position within the grid
-function getRandomPosition() {
-  return {
-    row: Math.floor(Math.random() * rows),
-    col: Math.floor(Math.random() * cols),
-    cost: Infinity,
-    heuristic: 0,
-    visited: false,
-    wall: false,
-    neighbors: [],
-    previous: undefined,
-  };
-}
-
-// Initialize the grid, draw the points, and perform A* algorithm
-function initialize() {
-  initializeGrid();
-  drawGrid();
-  drawPoints();
-  aStar();
-}
-
-// Call the initialize function
-initialize();
-
+    // Call the initialize function
+    initialize();
   </script>
 </body>
 </html>
